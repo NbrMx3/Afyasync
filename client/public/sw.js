@@ -40,6 +40,11 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  const requestUrl = new URL(event.request.url);
+  if (requestUrl.protocol !== 'http:' && requestUrl.protocol !== 'https:') {
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request).then((response) => {
       if (response) {
@@ -55,8 +60,8 @@ self.addEventListener('fetch', (event) => {
         // Clone the response
         const responseToCache = response.clone();
         caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, responseToCache);
-        });
+          cache.put(event.request, responseToCache).catch(() => {});
+        }).catch(() => {});
 
         return response;
       }).catch(() => {
