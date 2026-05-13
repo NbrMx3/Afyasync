@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "https://afyasyncc-api.onrender.com/api/$1"
+    }
+  ]
+}

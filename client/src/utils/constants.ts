@@ -4,9 +4,25 @@
 
 const rawApiBaseUrl = import.meta.env.VITE_API_URL?.trim();
 
+const DEFAULT_PROD_API_BASE_URL = 'https://afyasyncc-api.onrender.com/api';
+
 const isLocalhostUrl = (value: string) => /^(https?:\/\/)?(localhost|127\.0\.0\.1)(:\d+)?\/api\/?$/i.test(value);
 
-export const API_BASE_URL = rawApiBaseUrl && !isLocalhostUrl(rawApiBaseUrl) ? rawApiBaseUrl : '/api';
+const isBrowser = typeof window !== 'undefined';
+const isLocalHost = isBrowser && ['localhost', '127.0.0.1'].includes(window.location.hostname);
+
+const resolvedApiBaseUrl = rawApiBaseUrl && !isLocalhostUrl(rawApiBaseUrl)
+  ? rawApiBaseUrl
+  : isLocalHost
+    ? '/api'
+    : DEFAULT_PROD_API_BASE_URL;
+
+if (!rawApiBaseUrl && !isLocalHost) {
+  // Warn when production builds rely on fallback API URL instead of explicit env config.
+  console.warn('VITE_API_URL is not set. Falling back to default production API endpoint.');
+}
+
+export const API_BASE_URL = resolvedApiBaseUrl;
 export const APP_NAME = import.meta.env.VITE_APP_NAME || 'Secure Telehealth Portal';
 
 // Token storage keys
