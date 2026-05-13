@@ -6,6 +6,7 @@ import { createPatient, deletePatient, getPatientById, listPatients, updatePatie
 import { createUser, getUserByEmail, verifyPassword, signToken, getUserById } from './auth.js';
 import { createAppointment, deleteAppointment, getAppointmentById, listAppointmentsByPatient, updateAppointment } from './appointments.js';
 import { createMedicalRecord, deleteMedicalRecord, getRecordById, listMedicalRecordsByPatient, updateMedicalRecord } from './medicalRecords.js';
+import { seedDemoData } from './seedDemoData.js';
 
 dotenv.config();
 
@@ -260,6 +261,7 @@ app.delete('/api/medical-records/:id', async (req, res) => {
 async function start() {
   try {
     await ensureDatabaseSchema();
+    await seedDemoData();
 
     app.listen(port, () => {
       console.log(`Server running on http://localhost:${port}`);

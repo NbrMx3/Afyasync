@@ -1,0 +1,234 @@
+import { pool } from './db.js';
+import { createUser, getUserByEmail } from './auth.js';
+
+const demoUsers = [
+  {
+    id: 'demo-patient',
+    name: 'Demo Patient',
+    email: 'patient.demo@afyasyncc.com',
+    password: 'DemoPatient123!',
+    role: 'patient',
+  },
+  {
+    id: 'demo-doctor',
+    name: 'Demo Doctor',
+    email: 'doctor.demo@afyasyncc.com',
+    password: 'DemoDoctor123!',
+    role: 'doctor',
+  },
+  {
+    id: 'demo-admin',
+    name: 'Demo Admin',
+    email: 'admin.demo@afyasyncc.com',
+    password: 'DemoAdmin123!',
+    role: 'admin',
+  },
+];
+
+const demoPatientProfile = {
+  id: 'demo-patient',
+  name: 'Demo Patient',
+  email: 'patient.demo@afyasyncc.com',
+  phone: '+1 555 010 1000',
+  dateOfBirth: '1995-06-15',
+  gender: 'female',
+  bloodGroup: 'O+',
+  address: '12 Demo Street, Health City',
+  medicalHistory: ['Seasonal allergies', 'Mild asthma'],
+  emergencyContact: '+1 555 010 1999',
+};
+
+const demoAppointments = [
+  {
+    id: 'demo-appointment-1',
+    patientId: 'demo-patient',
+    doctorId: 'demo-doctor',
+    appointmentDate: '2026-05-14',
+    startTime: '09:00 AM',
+    endTime: '09:30 AM',
+    status: 'scheduled',
+    reason: 'General follow-up',
+    notes: 'Discuss recent lab results and medication refill.',
+  },
+  {
+    id: 'demo-appointment-2',
+    patientId: 'demo-patient',
+    doctorId: 'demo-doctor',
+    appointmentDate: '2026-05-01',
+    startTime: '02:00 PM',
+    endTime: '02:30 PM',
+    status: 'completed',
+    reason: 'Routine checkup',
+    notes: 'Vitals stable. Continue current care plan.',
+  },
+];
+
+const demoMedicalRecords = [
+  {
+    id: 'demo-record-1',
+    patientId: 'demo-patient',
+    doctorId: 'demo-doctor',
+    diagnosis: 'Seasonal allergy flare-up',
+    symptoms: ['Sneezing', 'Watery eyes', 'Congestion'],
+    prescription: 'Cetirizine 10mg once daily for 14 days',
+    notes: 'Patient advised to avoid dust and pollen exposure.',
+    recordDate: '2026-05-01',
+  },
+];
+
+async function upsertDemoUser(user) {
+  const existing = await getUserByEmail(user.email);
+  if (existing) {
+    return existing;
+  }
+
+  return createUser(user);
+}
+
+async function upsertDemoPatient(patient) {
+  const now = new Date().toISOString();
+  await pool.query(
+    `
+      INSERT INTO patients (
+        id,
+        name,
+        email,
+        phone,
+        date_of_birth,
+        gender,
+        blood_group,
+        address,
+        medical_history,
+        emergency_contact,
+        created_at,
+        updated_at
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9::jsonb, $10, $11, $12)
+      ON CONFLICT (id) DO UPDATE SET
+        name = EXCLUDED.name,
+        email = EXCLUDED.email,
+        phone = EXCLUDED.phone,
+        date_of_birth = EXCLUDED.date_of_birth,
+        gender = EXCLUDED.gender,
+        blood_group = EXCLUDED.blood_group,
+        address = EXCLUDED.address,
+        medical_history = EXCLUDED.medical_history,
+        emergency_contact = EXCLUDED.emergency_contact,
+        updated_at = EXCLUDED.updated_at
+    `,
+    [
+      patient.id,
+      patient.name,
+      patient.email,
+      patient.phone,
+      patient.dateOfBirth,
+      patient.gender,
+      patient.bloodGroup,
+      patient.address,
+      JSON.stringify(patient.medicalHistory ?? []),
+      patient.emergencyContact ?? null,
+      now,
+      now,
+    ]
+  );
+}
+
+async function upsertDemoAppointment(appointment) {
+  const now = new Date().toISOString();
+  await pool.query(
+    `
+      INSERT INTO appointments (
+        id,
+        patient_id,
+        doctor_id,
+        appointment_date,
+        start_time,
+        end_time,
+        status,
+        reason,
+        notes,
+        created_at,
+        updated_at
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+      ON CONFLICT (id) DO UPDATE SET
+        patient_id = EXCLUDED.patient_id,
+        doctor_id = EXCLUDED.doctor_id,
+        appointment_date = EXCLUDED.appointment_date,
+        start_time = EXCLUDED.start_time,
+        end_time = EXCLUDED.end_time,
+        status = EXCLUDED.status,
+        reason = EXCLUDED.reason,
+        notes = EXCLUDED.notes,
+        updated_at = EXCLUDED.updated_at
+    `,
+    [
+      appointment.id,
+      appointment.patientId,
+      appointment.doctorId,
+      appointment.appointmentDate,
+      appointment.startTime,
+      appointment.endTime,
+      appointment.status,
+      appointment.reason,
+      appointment.notes,
+      now,
+      now,
+    ]
+  );
+}
+
+async function upsertDemoMedicalRecord(record) {
+  const now = new Date().toISOString();
+  await pool.query(
+    `
+      INSERT INTO medical_records (
+        id,
+        patient_id,
+        doctor_id,
+        diagnosis,
+        symptoms,
+        prescription,
+        notes,
+        record_date,
+        created_at,
+        updated_at
+      ) VALUES ($1, $2, $3, $4, $5::text[], $6, $7, $8, $9, $10)
+      ON CONFLICT (id) DO UPDATE SET
+        patient_id = EXCLUDED.patient_id,
+        doctor_id = EXCLUDED.doctor_id,
+        diagnosis = EXCLUDED.diagnosis,
+        symptoms = EXCLUDED.symptoms,
+        prescription = EXCLUDED.prescription,
+        notes = EXCLUDED.notes,
+        record_date = EXCLUDED.record_date,
+        updated_at = EXCLUDED.updated_at
+    `,
+    [
+      record.id,
+      record.patientId,
+      record.doctorId,
+      record.diagnosis,
+      record.symptoms ?? [],
+      record.prescription ?? null,
+      record.notes,
+      record.recordDate,
+      now,
+      now,
+    ]
+  );
+}
+
+export async function seedDemoData() {
+  for (const user of demoUsers) {
+    await upsertDemoUser(user);
+  }
+
+  await upsertDemoPatient(demoPatientProfile);
+
+  for (const appointment of demoAppointments) {
+    await upsertDemoAppointment(appointment);
+  }
+
+  for (const record of demoMedicalRecords) {
+    await upsertDemoMedicalRecord(record);
+  }
+}
