@@ -34,7 +34,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       const response = await authService.login(credentials);
       setUser(response.user);
     } catch (err: any) {
-      const errorMessage = err?.response?.data?.message || 'Login failed';
+      const errorMessage = err?.response?.data?.message || err?.message || 'Login failed';
       setError(errorMessage);
       throw err;
     } finally {
@@ -49,7 +49,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       const response = await authService.register(data);
       setUser(response.user);
     } catch (err: any) {
-      const errorMessage = err?.response?.data?.message || 'Registration failed';
+      const errorMessage = err?.response?.data?.message || err?.message || 'Registration failed';
       setError(errorMessage);
       throw err;
     } finally {

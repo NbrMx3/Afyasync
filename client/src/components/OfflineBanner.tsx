@@ -10,13 +10,13 @@ export const OfflineBanner = () => {
   if (!isOffline) return null;
 
   return (
-    <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 fixed top-16 right-4 z-50 rounded-r-lg shadow-lg">
+    <div className="fixed right-4 top-4 z-50 rounded-r-lg border-l-4 border-yellow-400 bg-yellow-50 p-4 shadow-lg">
       <div className="flex items-center gap-3">
         <span className="text-2xl">📡</span>
         <div>
           <p className="font-semibold text-yellow-800">You are offline</p>
           <p className="text-sm text-yellow-700">
-            Your changes will be synced when you're back online
+            You can still sign in with a saved account and use the app. Changes will sync when you're back online.
           </p>
         </div>
       </div>

@@ -32,12 +32,13 @@ export const USER_KEY = 'telehealth_user';
 
 // IndexedDB configuration
 export const DB_NAME = 'TelehealthDB';
-export const DB_VERSION = 1;
+export const DB_VERSION = 2;
 export const STORES = {
   PATIENTS: 'patients',
   APPOINTMENTS: 'appointments',
   MEDICAL_RECORDS: 'medicalRecords',
   PRESCRIPTIONS: 'prescriptions',
+  USERS: 'users',
   SYNC_QUEUE: 'syncQueue',
 };
 

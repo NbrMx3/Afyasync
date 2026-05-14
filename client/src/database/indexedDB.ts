@@ -38,13 +38,18 @@ class IndexedDBHelper {
         const db = (event.target as IDBOpenDBRequest).result;
 
         // Create object stores
-        const storeNames = Object.values(STORES);
+        const storeNames = Object.values(STORES).filter((storeName) => storeName !== STORES.USERS && storeName !== STORES.SYNC_QUEUE);
         storeNames.forEach((storeName) => {
           if (!db.objectStoreNames.contains(storeName)) {
             const store = db.createObjectStore(storeName, { keyPath: 'id' });
             store.createIndex('timestamp', 'timestamp', { unique: false });
           }
         });
+
+        if (!db.objectStoreNames.contains(STORES.USERS)) {
+          const usersStore = db.createObjectStore(STORES.USERS, { keyPath: 'id' });
+          usersStore.createIndex('email', 'email', { unique: true });
+        }
 
         // Create sync queue store
         if (!db.objectStoreNames.contains(STORES.SYNC_QUEUE)) {
