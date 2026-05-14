@@ -17,8 +17,8 @@ const resolvedApiBaseUrl = rawApiBaseUrl && !isLocalhostUrl(rawApiBaseUrl)
     ? '/api'
     : DEFAULT_PROD_API_BASE_URL;
 
-if (!rawApiBaseUrl && !isLocalHost) {
-  // Warn when production builds rely on fallback API URL instead of explicit env config.
+// Only warn in development when env is missing to avoid noisy production logs.
+if (!rawApiBaseUrl && !isLocalHost && import.meta.env.DEV) {
   console.warn('VITE_API_URL is not set. Falling back to default production API endpoint.');
 }
 
