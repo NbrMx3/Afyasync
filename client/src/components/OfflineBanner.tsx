@@ -10,7 +10,7 @@ export const OfflineBanner = () => {
   if (!isOffline) return null;
 
   return (
-    <div className="fixed right-4 top-4 z-50 rounded-r-lg border-l-4 border-yellow-400 bg-yellow-50 p-4 shadow-lg">
+    <div className="fixed right-4 top-4 z-40 rounded-r-lg border-l-4 border-yellow-400 bg-yellow-50 p-4 shadow-lg">
       <div className="flex items-center gap-3">
         <span className="text-2xl">📡</span>
         <div>
